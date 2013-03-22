@@ -21,7 +21,8 @@
 #include <cassert>
 #include <cstring>
 #include <algorithm>
-#include <regex>
+#include <exception>
+#include <boost/regex.hpp>
 #include "parsimony.h"
 #include "parsimony_except.h"
 
@@ -39,14 +40,6 @@ parsimony::parsimony()
 
 /*!
  * \brief destructor
- *
- * \author deong
- * \date 05/08/2007
- *
- * \code
- * Modification History
- * MM/DD/YYYY	DESCRIPTION
- * \endcode
  */
 parsimony::~parsimony()
 {
@@ -55,14 +48,6 @@ parsimony::~parsimony()
 
 /*!
  * \brief erase all stored configuration data
- *
- * \author deong
- * \date 05/08/2007
- *
- * \code
- * Modification History
- * MM/DD/YYYY	DESCRIPTION
- * \endcode
  */
 void parsimony::clear()
 {
@@ -71,14 +56,8 @@ void parsimony::clear()
 
 /*!
  * \brief parse a given configuration file
- *
- * \author deong
- * \date 05/08/2007
- *
- * \code
- * Modification History
- * MM/DD/YYYY	DESCRIPTION
- * \endcode
+ * \param filename the name of the configuration file to parse
+ * \return true -- throws exception on errors
  */
 bool parsimony::read_configuration_file(const string& filename)
 {
@@ -87,13 +66,12 @@ bool parsimony::read_configuration_file(const string& filename)
         throw runtime_error("failed to open configuration file: " + filename);
     }
 
-    //bool lengthFound = false;
     int lineno=0;
     string line;
     while(!getline(in, line).eof()) {
         // update the line number
         lineno++;
-
+		
         // remove any comments
         int hashpos = (int)line.find("#", 0);
         if(hashpos != (int)string::npos) {
@@ -101,10 +79,11 @@ bool parsimony::read_configuration_file(const string& filename)
         }
 
         // if the line is (now) blank, just go to the next line
-        if(line == "") {
+		boost::regex wsre("^[[:space:]]*$");
+		if(boost::regex_match(line, wsre)) {
             continue;
-        }
-      
+		}
+		
         // parse the line into keyword and values
         // first, find the delimiter
         int delimiterpos = (int)line.find(":", 0);
@@ -122,36 +101,54 @@ bool parsimony::read_configuration_file(const string& filename)
             throw runtime_error(mystr.str());
         }
 
-        // now we have the left hand side and right hand side
-        string thekeyword = line.substr(0, delimiterpos);
-        string thevalue   = line.substr(delimiterpos+1);
-
-        // trim any leading or trailing spaces from the keyword
-        int first_non_space;
-        int last_non_space;
-        first_non_space = (int)thekeyword.find_first_not_of(" \t");
-        last_non_space = (int)thekeyword.find_last_not_of(" \t");
-        int tokenlen = last_non_space - first_non_space + 1;
-        thekeyword = thekeyword.substr(first_non_space, tokenlen);
-
-        // trim any leading or trailing spaces from the value
-        first_non_space = (int)thevalue.find_first_not_of(" \t");
-        last_non_space = (int)thevalue.find_last_not_of(" \t");
-        tokenlen = last_non_space - first_non_space + 1;
-        thevalue = thevalue.substr(first_non_space, tokenlen);
-
-        // add the mapping to the database
-        add_value(thekeyword, thevalue);
+		try {
+			// now we have the left hand side and right hand side
+			string thekeyword = line.substr(0, delimiterpos);
+			string thevalue   = line.substr(delimiterpos+1);
+			
+			// trim any leading or trailing spaces from the keyword
+			int first_non_space;
+			int last_non_space;
+			first_non_space = (int)thekeyword.find_first_not_of(" \t");
+			last_non_space = (int)thekeyword.find_last_not_of(" \t");
+			int tokenlen = last_non_space - first_non_space + 1;
+			thekeyword = thekeyword.substr(first_non_space, tokenlen);
+			
+			// make sure the keyword has no illegal characters
+			boost::regex re_identifier("^[A-Za-z_][A-Za-z0-9_.-]*'*");
+			if(!boost::regex_match(thekeyword, re_identifier)) {
+				throw runtime_error("syntax error");
+			}
+			
+			// trim any leading or trailing spaces from the value
+			first_non_space = (int)thevalue.find_first_not_of(" \t");
+			last_non_space = (int)thevalue.find_last_not_of(" \t");
+			tokenlen = last_non_space - first_non_space + 1;
+			thevalue = thevalue.substr(first_non_space, tokenlen);
+			
+			// add the mapping to the database
+			add_value(thekeyword, thevalue);
+		} catch(exception& e) {
+			ostringstream mystr;
+			mystr << "syntax error in " << filename << " (" << lineno << "): "
+				  << line << endl;
+			throw runtime_error(mystr.str());
+		}
     }
     return true;
 }
 
 /*!
  * \brief add a new keyword/value pair
- *
+ * \param keyword
+ * \param value
+ * 
  * if keyword already exists, add the value onto the keyword's list
+ *
+ * Note that all values are stored as strings. Type conversion is done
+ * on requesting a value.
  */
-int parsimony::add_value(const string &keyword,const string &value)
+int parsimony::add_value(const string &keyword, const string &value)
 {
     if(!keyword_exists(keyword)) {
         list<string> valueList;
@@ -168,15 +165,20 @@ int parsimony::add_value(const string &keyword,const string &value)
 
 /*!
  * \brief remove a given keyword/value pair
+ * \param keyword
+ * \param value
+ * \return 0 if the updated database does not contain a value for keyword, 1 if it does
  *
- * if the keyword does not exist, do nothing.  if removing the
- * value from the keyword results in an empty value list, remove
- * the keyword entry from the database
+ * if the keyword does not exist, do nothing. if removing the value
+ * from the keyword results in an empty value list, remove the keyword
+ * entry from the database
  */
 int parsimony::remove_value(const string &keyword,const string &value)
 {
-    assert(keyword_exists(keyword));
-
+	if(!keyword_exists(keyword)) {
+		return 0;
+	}
+	
     map<string,list<string> >::iterator mapIter;
     mapIter=db_.find(keyword);
 
@@ -199,6 +201,8 @@ int parsimony::remove_value(const string &keyword,const string &value)
 
 /*!
  * \brief check to see if a keyword is in the database
+ * \param keyword
+ * \return true if the keyword exists in the database, false otherwise
  */
 bool parsimony::keyword_exists(const string &keyword)
 {
@@ -212,11 +216,15 @@ bool parsimony::keyword_exists(const string &keyword)
 
 /*!
  * \brief check to see if a keyword is mapped to a single unique value
+ * \param keyword
+ * \return true if the keyword exists and has a single specified value; false otherwise
  */
 bool parsimony::has_unique_value(const string &keyword)
 {
-    assert(keyword_exists(keyword));
-
+    if(!keyword_exists(keyword)) {
+		return false;
+	}
+	
     map<string,list<string> >::const_iterator iter;
     iter=db_.find(keyword);
 
@@ -230,6 +238,10 @@ bool parsimony::has_unique_value(const string &keyword)
 
 /*!
  * \brief return the list of values associated with a keyword
+ * \param keyword
+ * \return the list of values associated with the keyword
+ *
+ * The keyword must exist in the database.
  */
 list<string> parsimony::values(const string &keyword)
 {
@@ -243,6 +255,10 @@ list<string> parsimony::values(const string &keyword)
 
 /*!
  * \brief return the first value associated with a keyword
+ * \param keyword
+ * \return the first value associated with a keyword as a string
+ *
+ * The keyword must exist in the database.
  */
 string parsimony::value(const string &keyword)
 {
@@ -262,6 +278,9 @@ string parsimony::value(const string &keyword)
 
 /*!
  * \brief get the primary value as a string
+ *
+ * Double quotes are handled specially. If the string begins and ends with quotes, they
+ * are removed. Otherwise, they are preserved.
  */
 bool parsimony::string_parameter(const string &keyword, string& res, bool required)
 {
@@ -278,6 +297,10 @@ bool parsimony::string_parameter(const string &keyword, string& res, bool requir
     }
 
     res=value(keyword);
+	if(res.size() >= 1 && res[0] == '"' && res[res.size()-1] == '"') {
+		res = res.substr(1, res.size()-2);
+		
+	}
     return true;
 }
 
@@ -297,12 +320,12 @@ bool parsimony::integer_parameter(const string& keyword, int& res, bool required
         throw ambiguous_keyword_error("keyword '"+keyword+"' is ambiguous; multiple values");
     }
 
-	// regex int_check("[-+]?\\d+");
-	// if(!regex_match(value(keyword), int_check)) {
-	// 	throw illegal_value_error(keyword);
-	// } else {
+	boost::regex int_check("[-+]?\\d+");
+	if(!boost::regex_match(value(keyword), int_check)) {
+		throw illegal_value_error(keyword);
+	} else {
 		res=atoi(value(keyword).c_str());
-	// }
+	}
 	
     return true;
 }
@@ -323,8 +346,13 @@ bool parsimony::unsigned_integer_parameter(const string& keyword, unsigned int& 
         throw ambiguous_keyword_error("keyword '"+keyword+"' is ambiguous; multiple values");
     }
 
+	boost::regex uint_check("\\+?\\d+");
+	if(!boost::regex_match(value(keyword), uint_check)) {
+		throw illegal_value_error(keyword);
+	}
+
     string temp=value(keyword);
-    res=(unsigned int)atoi(temp.c_str());
+	res = (unsigned int)atoi(temp.c_str());
     return true;
 }
 
@@ -343,6 +371,11 @@ bool parsimony::double_parameter(const string& keyword, double& res, bool requir
     if(!has_unique_value(keyword)) {
         throw ambiguous_keyword_error("keyword '"+keyword+"' is ambiguous; multiple values");
     }
+
+	boost::regex double_check("[-+]?\\d*\\.?\\d*");
+	if(!boost::regex_match(value(keyword), double_check)) {
+		throw illegal_value_error(keyword);
+	}
 
     string temp=value(keyword);
     res=atof(temp.c_str());
@@ -366,12 +399,12 @@ bool parsimony::boolean_parameter(const string& keyword, bool& res, bool require
     }
 
     string temp = value(keyword);
-    if(temp == "true" || temp == "yes") {
+    if(temp == "true" || temp == "yes" || temp == "TRUE" || temp == "YES" || temp == "1") {
         res = true;
-    } else if(temp == "false" || temp == "no") {
-        res = true;
+    } else if(temp == "false" || temp == "no" || temp == "FALSE" || temp == "NO" || temp == "0") {
+        res = false;
     } else {
-		throw illegal_value_error("illegal value for keyword '"+keyword+"' specified. Must be one of 'yes','true','no','false'");
+		throw illegal_value_error("illegal value for keyword '"+keyword+"' specified. Must be one of 'yes','true','no','false','0','1'");
     }
     return true;
 }
