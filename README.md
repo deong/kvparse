@@ -6,9 +6,9 @@ Efficient, type-safe template-driven parser for simple INI-like configuration fi
 
 # Requirements
 
-Requires [Boost.Regex][http://www.boost.org/]. 
+Requires [Boost.Regex](http://www.boost.org/). 
 
-Building and running the tests requires the [gtest][https://code.google.com/p/googletest] unit testing library.
+Building and running the tests requires the [gtest](https://code.google.com/p/googletest) unit testing library.
 
 
 # Installation
