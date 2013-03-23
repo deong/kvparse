@@ -83,10 +83,10 @@ Aside from the `missing_keyword_error`, parsimony will throw a few other excepti
 * If there is a syntax error in the configuration file, it throws a simple `std::runtime_error` with the file and line number of the error. 
 * If you ask for a scalar value type for a keyword that has been repeated in the configuration files, parsimony will throw an `ambiguous_keyword_error`. Keywords may be repeated, but if so you must use one of the vector or list specializations to fetch the associated values.
 * Parsimony does some very basic checks on the types requested and will throw an `illegal_value_error` if you violate these checks in a configuration file. Currently the checks performed are
-** ints must be specified as [+-]?\d+
-** unsigned ints or unsigned longs must be \+?\d+
-** doubles must be [+-]?\d*\.?\d*  -- note this allows forms like "-." or just ".", which isn't perfect.
-** bools must be one of "yes", "YES", "no", "NO", "true", "TRUE", "false", "FALSE", 0, or 1.
+* ints must be specified as [+-]?\d+
+* unsigned ints or unsigned longs must be \+?\d+
+* doubles must be [+-]?\d*\.?\d*  -- note this allows forms like "-." or just ".", which isn't perfect.
+* bools must be one of "yes", "YES", "no", "NO", "true", "TRUE", "false", "FALSE", 0, or 1.
 
 
 # Configuration file format
