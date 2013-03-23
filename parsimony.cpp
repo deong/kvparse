@@ -32,21 +32,6 @@ using namespace std;
 map<string,list<string> > parsimony::db_;
 
 /*!
- * \brief constructor
- */
-parsimony::parsimony()
-{
-}
-
-/*!
- * \brief destructor
- */
-parsimony::~parsimony()
-{
-    // no dynamic memory to worry about
-}
-
-/*!
  * \brief erase all stored configuration data
  */
 void parsimony::clear()
@@ -277,172 +262,17 @@ string parsimony::value(const string &keyword)
 }
 
 /*!
- * \brief get the primary value as a string
- *
- * Double quotes are handled specially. If the string begins and ends with quotes, they
- * are removed. Otherwise, they are preserved.
- */
-bool parsimony::string_parameter(const string &keyword, string& res, bool required)
-{
-    if(!keyword_exists(keyword)) {
-        if(required) {
-            throw missing_keyword_error("required keyword '"+keyword+"' not specified");
-        } else {
-            return false;
-        }
-    }
-
-    if(!has_unique_value(keyword)) {
-        throw ambiguous_keyword_error("keyword '"+keyword+"' is ambiguous; multiple values");
-    }
-
-    res=value(keyword);
-	if(res.size() >= 1 && res[0] == '"' && res[res.size()-1] == '"') {
-		res = res.substr(1, res.size()-2);
-		
-	}
-    return true;
-}
-
-/*!
- * \brief get the primary value as an integer
- */
-bool parsimony::integer_parameter(const string& keyword, int& res, bool required)
-{
-    if(!keyword_exists(keyword)) {
-        if(required) {
-            throw missing_keyword_error("required keyword '"+keyword+"' not specified");
-        } else {
-            return false;
-        }
-    }
-    if(!has_unique_value(keyword)) {
-        throw ambiguous_keyword_error("keyword '"+keyword+"' is ambiguous; multiple values");
-    }
-
-	boost::regex int_check("[-+]?\\d+");
-	if(!boost::regex_match(value(keyword), int_check)) {
-		throw illegal_value_error(keyword);
-	} else {
-		res=atoi(value(keyword).c_str());
-	}
-	
-    return true;
-}
-
-/*!
- * \brief get the primary value as an unsigned integer
- */
-bool parsimony::unsigned_integer_parameter(const string& keyword, unsigned int& res, bool required)
-{
-    if(!keyword_exists(keyword)) {
-        if(required) {
-            throw missing_keyword_error("required keyword '"+keyword+"' not specified");
-        } else {
-            return false;
-        }
-    }
-    if(!has_unique_value(keyword)) {
-        throw ambiguous_keyword_error("keyword '"+keyword+"' is ambiguous; multiple values");
-    }
-
-	boost::regex uint_check("\\+?\\d+");
-	if(!boost::regex_match(value(keyword), uint_check)) {
-		throw illegal_value_error(keyword);
-	}
-
-    string temp=value(keyword);
-	res = (unsigned int)atoi(temp.c_str());
-    return true;
-}
-
-/*!
- * \brief get the primary value as a double
- */
-bool parsimony::double_parameter(const string& keyword, double& res, bool required)
-{
-    if(!keyword_exists(keyword)) {
-        if(required) {
-            throw missing_keyword_error("required keyword '"+keyword+"' not specified");
-        } else {
-            return false;
-        }
-    }
-    if(!has_unique_value(keyword)) {
-        throw ambiguous_keyword_error("keyword '"+keyword+"' is ambiguous; multiple values");
-    }
-
-	boost::regex double_check("[-+]?\\d*\\.?\\d*");
-	if(!boost::regex_match(value(keyword), double_check)) {
-		throw illegal_value_error(keyword);
-	}
-
-    string temp=value(keyword);
-    res=atof(temp.c_str());
-    return true;
-}
-
-/*!
- * \brief get the primary value as a bool
- */
-bool parsimony::boolean_parameter(const string& keyword, bool& res, bool required)
-{
-    if(!keyword_exists(keyword)) {
-        if(required) {
-            throw missing_keyword_error("required keyword '"+keyword+"' not specified");
-        } else {
-            return false;
-        }
-    }
-    if(!has_unique_value(keyword)) {
-        throw ambiguous_keyword_error("keyword '"+keyword+"' is ambiguous; multiple values");
-    }
-
-    string temp = value(keyword);
-    if(temp == "true" || temp == "yes" || temp == "TRUE" || temp == "YES" || temp == "1") {
-        res = true;
-    } else if(temp == "false" || temp == "no" || temp == "FALSE" || temp == "NO" || temp == "0") {
-        res = false;
-    } else {
-		throw illegal_value_error("illegal value for keyword '"+keyword+"' specified. Must be one of 'yes','true','no','false','0','1'");
-    }
-    return true;
-}
-
-/*!
- * \brief get the list of all values (as strings)
- */
-bool parsimony::list_parameter(const string& keyword, list<string>& res, bool required)
-{
-    if(keyword_exists(keyword)) {
-        res = parsimony::values(keyword);
-        return true;
-    } else {
-        if(required) {
-            throw missing_keyword_error("required keyword '"+keyword+"' not specified");
-        } else {
-            return true;
-        }
-    }
-    return false;
-}
-
-/*!
  * \brief display the contents of the configuration database
  */
 void parsimony::dump_contents(ostream &ostr)
 {
     map<string,list<string> >::const_iterator mapIter;  
-    for(mapIter=db_.begin(); mapIter!=db_.end(); mapIter++)
-    {
+    for(mapIter=db_.begin(); mapIter!=db_.end(); mapIter++) {
         ostr << "Keyword: " << (*mapIter).first << "  |  ";
         const list<string> &values=(*mapIter).second;
         list<string>::const_iterator valueIter;
         ostr << "Values: ";
-        for(valueIter=values.begin();
-            valueIter!=values.end();
-            valueIter++)
-        {
+        for(valueIter=values.begin(); valueIter!=values.end(); valueIter++) {
             ostr << *valueIter << " ";
         }
         ostr << endl;
