@@ -97,9 +97,6 @@ The format of files expected by parsimony is very simple. The basic structure is
 # Known issues
 
 * Quotes are currently not handled well. Parsimony makes some attempt to handle quotes intelligently (e.g., you can quote an integer value and retrieve it as an int, strings quoted in a configuration file are not returned with quotes surrounding them when fetched), but this support is currently incomplete and a bit buggy.
-
 * The checking for illegal values for a given type is also incomplete, but most of the most useful cases are handled. The missing bits are mostly corner cases.
-
 * You must ensure that your configuration files end in a newline, else the last line will be ignored.
-
 * The tests are incomplete for the time being, but this is being actively worked on.
