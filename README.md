@@ -91,7 +91,39 @@ Aside from the `missing_keyword_error`, parsimony will throw a few other excepti
 
 # Configuration file format
 
-The format of files expected by parsimony is very simple. The basic structure is simply keyword/value pairs. Each pair must be specified on a single line. The delimiter may be either ":" or "=" characters. Anything from "#" to the end of the line is considered to be a comment. Whitespace is generally ignored, but whitespace within a keyword is a syntax error, and whitespace within a value is treated as a vector or list.
+The format of files expected by parsimony is very simple. The basic structure is simply keyword/value pairs. Each pair must be specified on a single line. The delimiter may be either ":" or "=" characters. Anything from "#" to the end of the line is considered to be a comment. Whitespace is generally ignored, but whitespace within a keyword is a syntax error, and whitespace within a value is treated as a vector or list. A sample is shown below.
+
+    # this is a sample configuration file
+    encoding: permutation
+    fitness_type: unsigned_long
+    randomizer: permutation
+
+    optimizer: simple_ga
+    population_size: 100
+    selection_operator: tournament
+    tournament_size: 2
+    crossover_operator: cycle
+    crossover_rate: 0.95
+    replacement_operator: steady_state
+    mutation_operator: swap
+    mutation_rate: 0.025
+
+    problem: qap
+    problem_data: ../prob/qap/gar60uni1.dat   # path to datafile 
+
+    comparator: single_objective
+    objective_number: 0
+    reference_point: 0 0     # reference point can be read as a vector<int> directly
+    terminator: evaluation_limit
+    max_evaluations: 100000
+
+    # note that repeating keywords is allowed; this creates a list of values associated with the keyword "metric"
+    metric: evaluation_counter
+    metric: generation_counter
+    metric: best_found
+
+    trials: 1
+    processors: 4
 
 
 # Known issues
