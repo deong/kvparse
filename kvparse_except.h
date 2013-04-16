@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _PARSIMONY_EXCEPT_H_
-#define _PARSIMONY_EXCEPT_H_
+#ifndef _KVPARSE_EXCEPT_H_
+#define _KVPARSE_EXCEPT_H_
 
 #include <stdexcept>
 #include <string>
@@ -57,5 +57,18 @@ public:
 		{
 		}
 };
-	
+
+/*!
+ * \class syntax_error
+ * \brief exception thrown for parse errors in the data file
+ */
+class syntax_error : public std::runtime_error
+{
+public:
+	syntax_error(const std::string& msg) :
+		std::runtime_error(msg)
+		{
+		}
+};
+
 #endif

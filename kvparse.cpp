@@ -1,5 +1,5 @@
 /*!
- * \file parsimony.cpp
+ * \file kvparse.cpp
  *
  * Stores the configuration information for a given run of the GA.
  * Uses a singleton pattern to control access to a single, statically
@@ -23,18 +23,18 @@
 #include <algorithm>
 #include <exception>
 #include <boost/regex.hpp>
-#include "parsimony.h"
-#include "parsimony_except.h"
+#include "kvparse.h"
+#include "kvparse_except.h"
 
 using namespace std;
 
 //! stores the internal configuration data
-map<string,list<string> > parsimony::db_;
+map<string,list<string> > kvparse::db_;
 
 /*!
  * \brief erase all stored configuration data
  */
-void parsimony::clear()
+void kvparse::clear()
 {
     db_.erase(db_.begin(), db_.end());
 }
@@ -44,7 +44,7 @@ void parsimony::clear()
  * \param filename the name of the configuration file to parse
  * \return true -- throws exception on errors
  */
-bool parsimony::read_configuration_file(const string& filename)
+bool kvparse::read_configuration_file(const string& filename)
 {
     ifstream in(filename.c_str());
     if(!in) {
@@ -83,7 +83,7 @@ bool parsimony::read_configuration_file(const string& filename)
             ostringstream mystr;
             mystr << "syntax error in " << filename << " (" << lineno <<  "): "
                   << line << endl;
-            throw runtime_error(mystr.str());
+            throw syntax_error(mystr.str());
         }
 
 		try {
@@ -102,7 +102,7 @@ bool parsimony::read_configuration_file(const string& filename)
 			// make sure the keyword has no illegal characters
 			boost::regex re_identifier("^[A-Za-z_][A-Za-z0-9_.-]*'*");
 			if(!boost::regex_match(thekeyword, re_identifier)) {
-				throw runtime_error("syntax error");
+				throw syntax_error("syntax error");
 			}
 			
 			// trim any leading or trailing spaces from the value
@@ -117,7 +117,7 @@ bool parsimony::read_configuration_file(const string& filename)
 			ostringstream mystr;
 			mystr << "syntax error in " << filename << " (" << lineno << "): "
 				  << line << endl;
-			throw runtime_error(mystr.str());
+			throw syntax_error(mystr.str());
 		}
     }
     return true;
@@ -133,7 +133,7 @@ bool parsimony::read_configuration_file(const string& filename)
  * Note that all values are stored as strings. Type conversion is done
  * on requesting a value.
  */
-int parsimony::add_value(const string &keyword, const string &value)
+int kvparse::add_value(const string &keyword, const string &value)
 {
     if(!keyword_exists(keyword)) {
         list<string> valueList;
@@ -158,7 +158,7 @@ int parsimony::add_value(const string &keyword, const string &value)
  * from the keyword results in an empty value list, remove the keyword
  * entry from the database
  */
-int parsimony::remove_value(const string &keyword,const string &value)
+int kvparse::remove_value(const string &keyword,const string &value)
 {
 	if(!keyword_exists(keyword)) {
 		return 0;
@@ -189,7 +189,7 @@ int parsimony::remove_value(const string &keyword,const string &value)
  * \param keyword
  * \return true if the keyword exists in the database, false otherwise
  */
-bool parsimony::keyword_exists(const string &keyword)
+bool kvparse::keyword_exists(const string &keyword)
 {
     map<string,list<string> >::const_iterator iter;
     iter=db_.find(keyword);
@@ -204,7 +204,7 @@ bool parsimony::keyword_exists(const string &keyword)
  * \param keyword
  * \return true if the keyword exists and has a single specified value; false otherwise
  */
-bool parsimony::has_unique_value(const string &keyword)
+bool kvparse::has_unique_value(const string &keyword)
 {
     if(!keyword_exists(keyword)) {
 		return false;
@@ -228,7 +228,7 @@ bool parsimony::has_unique_value(const string &keyword)
  *
  * The keyword must exist in the database.
  */
-list<string> parsimony::values(const string &keyword)
+list<string> kvparse::values(const string &keyword)
 {
     assert(keyword_exists(keyword));
 
@@ -245,7 +245,7 @@ list<string> parsimony::values(const string &keyword)
  *
  * The keyword must exist in the database.
  */
-string parsimony::value(const string &keyword)
+string kvparse::value(const string &keyword)
 {
     assert(keyword_exists(keyword));
 
@@ -264,7 +264,7 @@ string parsimony::value(const string &keyword)
 /*!
  * \brief display the contents of the configuration database
  */
-void parsimony::dump_contents(ostream &ostr)
+void kvparse::dump_contents(ostream &ostr)
 {
     map<string,list<string> >::const_iterator mapIter;  
     for(mapIter=db_.begin(); mapIter!=db_.end(); mapIter++) {

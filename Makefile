@@ -1,5 +1,5 @@
-run_tests : parsimony.h parsimony.cpp test_parsimony.cpp
-	g++ -Wall -O2 -o run_tests parsimony.cpp test_parsimony.cpp -lgtest -lgtest_main -lpthread -lboost_regex
+run_tests : kvparse.h kvparse.cpp test_kvparse.cpp
+	g++ -Wall -O2 -o run_tests kvparse.cpp test_kvparse.cpp -lgtest -lgtest_main -lpthread -lboost_regex
 
 .PHONY : clean
 clean :

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _PARSIMONY_H_
-#define _PARSIMONY_H_
+#ifndef _KVPARSE_H_
+#define _KVPARSE_H_
 
 #include <iostream>
 #include <sstream>
@@ -22,7 +22,7 @@
 #include <list>
 #include <string>
 #include <iostream>
-#include "parsimony_except.h"
+#include "kvparse_except.h"
 #include "boost/regex.hpp"
 
 using std::string;
@@ -33,14 +33,14 @@ using std::map;
 using std::istringstream;
 
 /*!
- * \class parsimony
+ * \class kvparse
  *
  * Implements an option=value parser for simple INI-like configuration
  * files.
  *
  * Uses templates heavily to provide type-safe access to the values.
  */
-class parsimony
+class kvparse
 {
 private:
     // my current collection of configuration parameters,
@@ -48,9 +48,9 @@ private:
     static map<string,list<string> > db_;
 
     // disable construction/copying
-    parsimony();
-    parsimony(const parsimony&);
-    parsimony &operator=(const parsimony&);
+    kvparse();
+    kvparse(const kvparse&);
+    kvparse &operator=(const kvparse&);
 
     //! provide operator to convert from strings to Ts
     template <typename T>
@@ -85,7 +85,7 @@ public:
  * are removed. Otherwise, they are preserved.
  */
 template <>
-inline bool parsimony::parameter_value<string>(const string &keyword, string& res, bool required)
+inline bool kvparse::parameter_value<string>(const string &keyword, string& res, bool required)
 {
     if(!keyword_exists(keyword)) {
         if(required) {
@@ -111,7 +111,7 @@ inline bool parsimony::parameter_value<string>(const string &keyword, string& re
  * \brief get the primary value as an integer
  */
 template <>
-inline bool parsimony::parameter_value<int>(const string& keyword, int& res, bool required)
+inline bool kvparse::parameter_value<int>(const string& keyword, int& res, bool required)
 {
     if(!keyword_exists(keyword)) {
         if(required) {
@@ -138,7 +138,7 @@ inline bool parsimony::parameter_value<int>(const string& keyword, int& res, boo
  * \brief get the primary value as an unsigned integer
  */
 template <>
-inline bool parsimony::parameter_value<unsigned int>(const string& keyword, unsigned int& res, bool required)
+inline bool kvparse::parameter_value<unsigned int>(const string& keyword, unsigned int& res, bool required)
 {
     if(!keyword_exists(keyword)) {
         if(required) {
@@ -165,7 +165,7 @@ inline bool parsimony::parameter_value<unsigned int>(const string& keyword, unsi
  * \brief get the primary value as an unsigned long
  */
 template <>
-inline bool parsimony::parameter_value<unsigned long>(const string& keyword, unsigned long& res, bool required)
+inline bool kvparse::parameter_value<unsigned long>(const string& keyword, unsigned long& res, bool required)
 {
     if(!keyword_exists(keyword)) {
         if(required) {
@@ -192,7 +192,7 @@ inline bool parsimony::parameter_value<unsigned long>(const string& keyword, uns
  * \brief get the primary value as a double
  */
 template <>
-inline bool parsimony::parameter_value<double>(const string& keyword, double& res, bool required)
+inline bool kvparse::parameter_value<double>(const string& keyword, double& res, bool required)
 {
     if(!keyword_exists(keyword)) {
         if(required) {
@@ -219,7 +219,7 @@ inline bool parsimony::parameter_value<double>(const string& keyword, double& re
  * \brief get the primary value as a bool
  */
 template <>
-inline bool parsimony::parameter_value<bool>(const string& keyword, bool& res, bool required)
+inline bool kvparse::parameter_value<bool>(const string& keyword, bool& res, bool required)
 {
     if(!keyword_exists(keyword)) {
         if(required) {
@@ -247,7 +247,7 @@ inline bool parsimony::parameter_value<bool>(const string& keyword, bool& res, b
  * \brief retrieve parameter values as a list of the specified type
  */
 template <typename T>
-inline bool parsimony::parameter_value(const string& keyword, list<T>& res, bool required)
+inline bool kvparse::parameter_value(const string& keyword, list<T>& res, bool required)
 {
     if(keyword_exists(keyword)) {
         list<string> vals = values(keyword);
@@ -270,7 +270,7 @@ inline bool parsimony::parameter_value(const string& keyword, list<T>& res, bool
  * \brief retrieve parameter values as a vector of a specified type
  */
 template <class T>
-inline bool parsimony::parameter_value(const string& keyword, vector<T>& v, bool required)
+inline bool kvparse::parameter_value(const string& keyword, vector<T>& v, bool required)
 {
     if(!keyword_exists(keyword)) {
         if(required) {
@@ -295,7 +295,7 @@ inline bool parsimony::parameter_value(const string& keyword, vector<T>& v, bool
  * \brief convert from strings to integers
  */
 template <>
-inline int parsimony::from_string<int>(const string& val)
+inline int kvparse::from_string<int>(const string& val)
 {
     return atoi(val.c_str());
 }
@@ -304,7 +304,7 @@ inline int parsimony::from_string<int>(const string& val)
  * \brief convert from strings to doubles
  */
 template <>
-inline double parsimony::from_string<double>(const string& val)
+inline double kvparse::from_string<double>(const string& val)
 {
     return static_cast<double>(atof(val.c_str()));
 }
@@ -313,7 +313,7 @@ inline double parsimony::from_string<double>(const string& val)
  * \brief dummy converter from strings to strings
  */
 template <>
-inline string parsimony::from_string<string>(const string& val)
+inline string kvparse::from_string<string>(const string& val)
 {
     return val;
 }
