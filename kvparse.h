@@ -69,13 +69,13 @@ public:
     static void dump_contents(ostream &ostr);
 
     template <typename T>
-    static inline bool parameter_value(const string& keyword, T& value, bool required=true);
+    static inline bool parameter_value(const string& keyword, T& value, bool required=false);
 
     template <typename T>
-    static inline bool parameter_value(const string& keyword, vector<T>& value, bool required=true);
+    static inline bool parameter_value(const string& keyword, vector<T>& value, bool required=false);
 
     template <typename T>
-    static inline bool parameter_value(const string& keyword, list<T>& value, bool required=true);
+    static inline bool parameter_value(const string& keyword, list<T>& value, bool required=false);
 };
 
 /*!
