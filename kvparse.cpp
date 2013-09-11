@@ -113,7 +113,7 @@ bool kvparse::read_configuration_file(const string& filename)
 			
 			// add the mapping to the database
 			add_value(thekeyword, thevalue);
-		} catch(exception& e) {
+		} catch(exception&) {
 			ostringstream mystr;
 			mystr << "syntax error in " << filename << " (" << lineno << "): "
 				  << line << endl;
