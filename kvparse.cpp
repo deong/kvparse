@@ -94,8 +94,8 @@ bool kvparse::read_configuration_file(const string& filename)
 			// trim any leading or trailing spaces from the keyword
 			int first_non_space;
 			int last_non_space;
-			first_non_space = (int)thekeyword.find_first_not_of(" \t");
-			last_non_space = (int)thekeyword.find_last_not_of(" \t");
+			first_non_space = (int)thekeyword.find_first_not_of(" \r\t");
+			last_non_space = (int)thekeyword.find_last_not_of(" \r\t");
 			int tokenlen = last_non_space - first_non_space + 1;
 			thekeyword = thekeyword.substr(first_non_space, tokenlen);
 			
@@ -106,8 +106,8 @@ bool kvparse::read_configuration_file(const string& filename)
 			}
 			
 			// trim any leading or trailing spaces from the value
-			first_non_space = (int)thevalue.find_first_not_of(" \t");
-			last_non_space = (int)thevalue.find_last_not_of(" \t");
+			first_non_space = (int)thevalue.find_first_not_of(" \r\t");
+			last_non_space = (int)thevalue.find_last_not_of(" \r\t");
 			tokenlen = last_non_space - first_non_space + 1;
 			thevalue = thevalue.substr(first_non_space, tokenlen);
 			
