@@ -5,7 +5,7 @@ libkvp.a : kvparse.h kvparse_except.h kvparse.o
 	ar rcs libkvp.a kvparse.o
 
 kvparse.o : kvparse.h kvparse_except.h kvparse.cpp
-	${CXX} ${CXXFLAGS} -c -o kvparse.o kvparse.cpp -lboost_regex
+	${CXX} ${CXXFLAGS} -c -o kvparse.o kvparse.cpp 
 
 run_tests : kvparse.h kvparse.cpp test_kvparse.cpp
 	${CXX} ${CXXFLAGS} -o run_tests kvparse.cpp test_kvparse.cpp -lgtest -lgtest_main -lpthread -lboost_regex
