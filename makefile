@@ -1,11 +1,14 @@
+CXX=clang++
+CXXFLAGS=-Wall -O3 -pipe 
+
 libkvp.a : kvparse.h kvparse_except.h kvparse.o 
 	ar rcs libkvp.a kvparse.o
 
 kvparse.o : kvparse.h kvparse_except.h kvparse.cpp
-	g++ -Wall -O3 -c -o kvparse.o kvparse.cpp -lboost_regex
+	${CXX} ${CXXFLAGS} -c -o kvparse.o kvparse.cpp -lboost_regex
 
 run_tests : kvparse.h kvparse.cpp test_kvparse.cpp
-	g++ -Wall -O2 -o run_tests kvparse.cpp test_kvparse.cpp -lgtest -lgtest_main -lpthread -lboost_regex
+	${CXX} ${CXXFLAGS} -o run_tests kvparse.cpp test_kvparse.cpp -lgtest -lgtest_main -lpthread -lboost_regex
 
 .PHONY : clean
 clean :
