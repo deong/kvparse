@@ -1,5 +1,5 @@
 CXX=clang++
-CXXFLAGS=-Wall -O3 -pipe 
+CXXFLAGS=-Wall -std=c++11 -O3 -pipe 
 
 libkvp.a : kvparse.h kvparse_except.h kvparse.o 
 	ar rcs libkvp.a kvparse.o
