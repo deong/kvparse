@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <exception>
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 #include "kvparse.h"
 #include "kvparse_except.h"
 
@@ -232,10 +233,16 @@ list<string> kvparse::values(const string &keyword)
 {
     assert(keyword_exists(keyword));
 
-    map<string,list<string> >::const_iterator iter;
-    iter=db_.find(keyword);
+    map<string,list<string> >::const_iterator iter = db_.find(keyword);
+	const list<string>& values = (*iter).second;
 
-    return (*iter).second;
+	list<string> ls;
+	vector<string> tokens;
+	boost::split(tokens, values.front(), boost::is_any_of(" \t"));
+	for(unsigned int i=0; i<tokens.size(); i++) {
+		ls.push_back(tokens[i]);
+	}
+	return ls;
 }
 
 /*!

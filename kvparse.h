@@ -22,8 +22,8 @@
 #include <list>
 #include <string>
 #include <iostream>
+#include <boost/regex.hpp>
 #include "kvparse_except.h"
-#include "boost/regex.hpp"
 
 using std::string;
 using std::list;
@@ -250,7 +250,7 @@ template <typename T>
 inline bool kvparse::parameter_value(const string& keyword, list<T>& res, bool required)
 {
     if(keyword_exists(keyword)) {
-        list<string> vals = values(keyword);
+		list<string> vals = values(keyword);
         res.clear();
         for(list<string>::iterator it=vals.begin(); it!=vals.end(); ++it) {
 			res.push_back(from_string<T>(*it));
