@@ -4,10 +4,12 @@
 *.o
 
 # Compiled Dynamic libraries
-*.so
+*.so.*.0.0
 *.dylib
 
 # Compiled Static libraries
 *.lai
 *.la
 *.a
+
+run_tests
