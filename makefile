@@ -10,10 +10,11 @@ run_tests : kvparse.h kvparse.cpp test_kvparse.cpp
 
 install : libkvparse.so.1.0.0
 	cp kvparse.h /usr/local/include
+	cp kvparse_except.h /usr/local/include
 	cp libkvparse.so.1.0.0 /usr/local/lib
-	ln -s /usr/local/lib/libkvparse.so.1.0.0 /usr/local/lib/libkvparse.so.1.0
-	ln -s /usr/local/lib/libkvparse.so.1.0.0 /usr/local/lib/libkvparse.so.1
-	ln -s /usr/local/lib/libkvparse.so.1.0.0 /usr/local/lib/libkvparse.so
+	ln -sf /usr/local/lib/libkvparse.so.1.0.0 /usr/local/lib/libkvparse.so.1.0
+	ln -sf /usr/local/lib/libkvparse.so.1.0.0 /usr/local/lib/libkvparse.so.1
+	ln -sf /usr/local/lib/libkvparse.so.1.0.0 /usr/local/lib/libkvparse.so
 
 .PHONY : clean
 clean :

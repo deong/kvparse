@@ -247,12 +247,11 @@ inline bool kvparse::parameter_value<bool>(const string& keyword, bool& res, boo
  * \brief retrieve parameter values as a list of the specified type
  */
 template <typename T>
-inline bool kvparse::parameter_value(const string& keyword, list<T>& res, bool required)
-{
+inline bool kvparse::parameter_value(const string &keyword, list<T> &res, bool required) {
     if(keyword_exists(keyword)) {
-		list<string> vals = values(keyword);
+        list<string> vals = values(keyword);
         res.clear();
-        for(list<string>::iterator it=vals.begin(); it!=vals.end(); ++it) {
+        for (list<string>::iterator it = vals.begin(); it != vals.end(); ++it) {
 			res.push_back(from_string<T>(*it));
 		}
         return true;
@@ -282,9 +281,8 @@ inline bool kvparse::parameter_value(const string& keyword, vector<T>& v, bool r
         v.clear();
         string vecvals = value(keyword);
         istringstream istr(vecvals);
-        while(!istr.eof()) {
-            T x;
-            istr >> x;
+        T x;
+        while(istr >> x) {
             v.push_back(x);
         }
     }

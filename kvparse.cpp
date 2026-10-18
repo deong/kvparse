@@ -54,7 +54,8 @@ bool kvparse::read_configuration_file(const string& filename)
 
     int lineno=0;
     string line;
-    while(!getline(in, line).eof()) {
+    // while(!getline(in, line).eof()) {
+    while(getline(in, line)) {
         // update the line number
         lineno++;
 		
@@ -139,7 +140,7 @@ int kvparse::add_value(const string &keyword, const string &value)
     if(!keyword_exists(keyword)) {
         list<string> valueList;
         valueList.push_back(value);
-        db_[keyword]=valueList;
+        db_[keyword] = valueList;
         return 1;
     } else {
         map<string,list<string> >::iterator mapIter;
@@ -232,17 +233,17 @@ bool kvparse::has_unique_value(const string &keyword)
 list<string> kvparse::values(const string &keyword)
 {
     assert(keyword_exists(keyword));
+    const list<string>& stored = db_.find(keyword)->second;
 
-    map<string,list<string> >::const_iterator iter = db_.find(keyword);
-	const list<string>& values = (*iter).second;
-
-	list<string> ls;
-	vector<string> tokens;
-	boost::split(tokens, values.front(), boost::is_any_of(" \t"));
-	for(unsigned int i=0; i<tokens.size(); i++) {
-		ls.push_back(tokens[i]);
-	}
-	return ls;
+    list<string> ls;
+    for (const string& v : stored) {
+        vector<string> tokens;
+        boost::split(tokens, v, boost::is_any_of(" \t"), boost::token_compress_on);
+        for (const string& t : tokens) {
+            if (!t.empty()) ls.push_back(t);
+        }
+    }
+    return ls;
 }
 
 /*!
@@ -280,7 +281,7 @@ void kvparse::dump_contents(ostream &ostr)
         list<string>::const_iterator valueIter;
         ostr << "Values: ";
         for(valueIter=values.begin(); valueIter!=values.end(); valueIter++) {
-            ostr << *valueIter << " ";
+            ostr << *valueIter << "|";
         }
         ostr << endl;
     }
